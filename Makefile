@@ -28,3 +28,4 @@ test.local:
 
 clean:
 	az group delete --name $(RG)
+	dotnet clean

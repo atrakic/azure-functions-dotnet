@@ -6,9 +6,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Data.Sqlite;
 using System.Text.Json;
 
-// curl -s --request POST http://localhost:7071/api/HttpApi --data '{"name":"Azure Rocks"}'
-// curl -s -H "Accept: application/json" --request GET http://localhost:7071/api/HttpApi
-
 namespace MyFunction
 {
     public class HttpApi
