@@ -27,5 +27,5 @@ test.local:
 	curl -H "Accept: application/json" --request GET http://localhost:7071/HttpApi
 
 clean:
+	pushd $(BASEDIR)/src/api; dotnet clean; popd
 	az group delete --name $(RG)
-	pushd $(BASEDIR)/api/src; dotnet clean; popd
