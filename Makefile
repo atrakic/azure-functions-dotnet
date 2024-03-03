@@ -11,21 +11,21 @@ endif
 up: start
 
 start:
-	func start
+	pushd $(BASEDIR)/src/api; func start; popd
 
 deploy: infra
-	func azure functionapp publish $(APP_NAME)
+	pushd $(BASEDIR)/src/api; func azure functionapp publish $(APP_NAME); popd
 
 logs:
-	func azure functionapp logstream $(APP_NAME)
+	pushd $(BASEDIR)/src/api; func azure functionapp logstream $(APP_NAME); popd
 
 infra:
 	$(BASEDIR)/infra/deploy.sh
 
 test.local:
-	curl --request POST http://localhost:7071/api/HttpApi --data '{"name":"Azure Rocks"}'
-	curl -H "Accept: application/json" --request GET http://localhost:7071/api/HttpApi
+	curl --request POST http://localhost:7071/HttpApi --data '{"name":"Azure Rocks"}'
+	curl -H "Accept: application/json" --request GET http://localhost:7071/HttpApi
 
 clean:
 	az group delete --name $(RG)
-	dotnet clean
+	pushd $(BASEDIR)/api/src; dotnet clean; popd

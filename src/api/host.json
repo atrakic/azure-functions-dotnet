@@ -1,0 +1,21 @@
+{
+  "version": "2.0",
+  "logging": {
+    "applicationInsights": {
+      "samplingSettings": {
+        "isEnabled": true,
+        "excludedTypes": "Request"
+      },
+      "enableLiveMetricsFilters": true
+    }
+  },
+  "extensions": {
+    "http": {
+      "routePrefix": "",
+      "customHeaders": {
+        "X-Content-Type-Options": "nosniff",
+        "Content-Type": "application/json; charset=utf-8"
+      }
+    }
+  }
+}

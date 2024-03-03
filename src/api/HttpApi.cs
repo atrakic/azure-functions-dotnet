@@ -28,11 +28,7 @@ namespace MyFunction
         [Function("HttpApi")]
         public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
         {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
-
             var response = req.CreateResponse(HttpStatusCode.OK);
-            response.Headers.Add("Content-Type", "application/json; charset=utf-8");
-            response.Headers.Add("Cache-Control", "no-cache");
 
             if (req.Method == "POST")
             {

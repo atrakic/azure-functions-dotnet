@@ -1,0 +1,78 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Start API",
+            "type": "dotenv",
+            "targetTasks": "API Functions Run",
+            "file": "${input:dotEnvFilePath}"
+        },
+        {
+            "label": "Clean API",
+            "command": "dotnet",
+            "args": [
+                "clean",
+                "${workspaceFolder}/src/api/SqliteProj.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/src/api/"
+            },
+            "type": "process",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Build API",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/src/api/SqliteProj.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "type": "process",
+            "dependsOn": "Clean API",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "API Functions Run",
+            "detail": "Helper task--use 'Start API' task to ensure environment is set up correctly",
+            "type": "func",
+            "dependsOn": "Build API",
+            "command": "host start",
+            "options": {
+                "cwd": "${workspaceFolder}/src/api/"
+            },
+            "presentation": {
+                "panel": "dedicated",
+            },
+            "problemMatcher": [
+                "$func-dotnet-watch"
+            ]
+        },
+        {
+            "label": "Watch API",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "watch",
+                "run",
+                "--project",
+                "${workspaceFolder}/src/api/SqliteProj.csproj"
+            ],
+            "problemMatcher": "$msCompile"
+        }
+    ],
+    "inputs": [
+        {
+            "id": "dotEnvFilePath",
+            "type": "command",
+            "command": "azure-dev.commands.getDotEnvFilePath"
+        }
+    ]
+}
