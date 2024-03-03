@@ -9,6 +9,7 @@
       "enableLiveMetricsFilters": true
     }
   },
+  "watchFiles": [ "events.db" ],
   "extensions": {
     "http": {
       "routePrefix": "",
