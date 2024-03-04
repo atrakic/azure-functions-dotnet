@@ -1,7 +1,10 @@
-#trigger:
-  #branches:
-  #  include:
-  #  - master
+trigger:
+  branches:
+    include:
+    - '*'
+  paths:
+    exclude:
+    - README.md
 
 pr:
   branches:
@@ -24,8 +27,10 @@ jobs:
     - script: |
         dotnet restore
         dotnet build --configuration $(buildConfiguration)
+        dotnet test --configuration $(buildConfiguration)
 
     - task: DotNetCoreCLI@2
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
       inputs:
         command: publish
         arguments: '--configuration $(buildConfiguration) --output publish_output'
@@ -35,6 +40,7 @@ jobs:
         zipAfterPublish: false
 
     - task: ArchiveFiles@2
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
       displayName: "Archive files"
       inputs:
         rootFolderOrFile: "$(System.DefaultWorkingDirectory)/publish_output"
@@ -42,6 +48,7 @@ jobs:
         archiveFile: "$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip"
 
     - task: PublishBuildArtifacts@1
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
       inputs:
         PathtoPublish: '$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip'
         artifactName: 'drop'

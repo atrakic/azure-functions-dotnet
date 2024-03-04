@@ -14,25 +14,32 @@ if [ $(az group exists --name "$RG") = false ]; then
   echo "You are about to create Azure resources at account: "
   az account show
 
-  echo -n "Are you sure? (Press <Enter> to continue or <Ctrl+C> to abort) "
-  read -r _
+  if [[ -n "${FORCE}" ]]; then
+    echo -n "Are you sure? Press <Enter> to continue or <Ctrl+C> to abort "
+    read -r _
+  fi
 
   az group create --name "$RG" --location "$LOCATION"
 
-  az storage account create --name "$STORAGE_NAME" --resource-group "$RG" --location "$LOCATION"
+  az storage account create --name "$STORAGE_NAME" \
+    --sku Standard_LRS --allow-blob-public-access false \
+    --resource-group "$RG" --location "$LOCATION"
 
-  az functionapp create --resource-group "$RG" \
+  az functionapp create --name "$APP_NAME" \
+    --resource-group "$RG" \
     --consumption-plan-location "$LOCATION" \
-    --runtime dotnet-isolated \
-    --functions-version 4 \
-    --name "$APP_NAME" \
+    --runtime dotnet-isolated --functions-version 4 \
     --storage-account "$STORAGE_NAME"
 
   if [[ -z "${COSMOSDB_NAME}" ]]; then
-    az cosmosdb create --name "$COSMOSDB_NAME" --resource-group "$RG" \
-      --kind MongoDB --locations regionName="$LOCATION" failoverPriority=0 isZoneRedundant=False
+    az cosmosdb create --name "$COSMOSDB_NAME" \
+      --kind MongoDB failoverPriority=0 isZoneRedundant=False \
+      --resource-group "$RG" --location "$LOCATION"
   fi
 
 else
   echo "Resource group: $RG already exists"
 fi
+
+
+## WEBSITE_RUN_FROM_PACKAGE
