@@ -1,0 +1,47 @@
+#trigger:
+  #branches:
+  #  include:
+  #  - master
+
+pr:
+  branches:
+    include:
+    - '*'
+  paths:
+    exclude:
+    - README.md
+
+variables:
+  buildConfiguration: 'Release'
+
+jobs:
+- job: Build
+  displayName: 'Build job'
+  pool:
+    vmImage: 'windows-latest'
+
+  steps:
+    - script: |
+        dotnet restore
+        dotnet build --configuration $(buildConfiguration)
+
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: publish
+        arguments: '--configuration Release --output publish_output'
+        projects: '*.csproj'
+        publishWebProjects: false
+        modifyOutputPath: false
+        zipAfterPublish: false
+
+    - task: ArchiveFiles@2
+      displayName: "Archive files"
+      inputs:
+        rootFolderOrFile: "$(System.DefaultWorkingDirectory)/publish_output"
+        includeRootFolder: false
+        archiveFile: "$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip"
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip'
+        artifactName: 'drop'
