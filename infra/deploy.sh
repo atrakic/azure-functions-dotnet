@@ -6,8 +6,8 @@
 : "${LOCATION:=westeurope}"
 
 set -o errexit
-set -o nounset
-set -o pipefail
+#set -o nounset
+#set -o pipefail
 
 if [ $(az group exists --name "$RG") = false ]; then
 
