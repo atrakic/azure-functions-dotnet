@@ -18,6 +18,17 @@ if [ $(az group exists --name "$RG") = false ]; then
     echo -n "Are you sure? Press <Enter> to continue or <Ctrl+C> to abort "
     read -r _
   fi
+  
+  ## https://docs.microsoft.com/azure/azure-resource-manager/resource-group-create-service-principal-portal
+  if [[ -n "${CREATE_AZURE_SP}" ]]; then
+    let "randomIdentifier=$RANDOM*$RANDOM"
+    servicePrincipalName="$APP_NAME-$randomIdentifier"
+    subscriptionId=$(az account show --query id --output tsv)
+
+    az ad sp create-for-rbac --name "$servicePrincipalName" --role contributor \
+      --scopes /subscriptions/"$subscriptionId"/resourceGroups/"$APP_NAME"/providers/Microsoft.Web/sites/"$APP_NAME" \
+      --json-auth | tee .credenials.json
+  fi
 
   az group create --name "$RG" --location "$LOCATION"
 
@@ -35,17 +46,6 @@ if [ $(az group exists --name "$RG") = false ]; then
     az cosmosdb create --name "$COSMOSDB_NAME" \
       --kind MongoDB failoverPriority=0 isZoneRedundant=False \
       --resource-group "$RG" --location "$LOCATION"
-  fi
-
-  ## https://docs.microsoft.com/azure/azure-resource-manager/resource-group-create-service-principal-portal
-  if [[ -n "${CREATE_AZURE_SP}" ]]; then
-    let "randomIdentifier=$RANDOM*$RANDOM"
-    servicePrincipalName="$APP_NAME-$randomIdentifier"
-    subscriptionId=$(az account show --query id --output tsv)
-
-    az ad sp create-for-rbac --name "$servicePrincipalName" --role contributor \
-      --scopes /subscriptions/"$subscriptionId"/resourceGroups/"$APP_NAME"/providers/Microsoft.Web/sites/"$APP_NAME" \
-      | tee .credenials.json
   fi
 
 else
