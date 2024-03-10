@@ -37,6 +37,7 @@ if [ $(az group exists --name "$RG") = false ]; then
       --resource-group "$RG" --location "$LOCATION"
   fi
 
+  ## https://docs.microsoft.com/azure/azure-resource-manager/resource-group-create-service-principal-portal
   if [[ -n "${CREATE_AZURE_SP}" ]]; then
     let "randomIdentifier=$RANDOM*$RANDOM"
     servicePrincipalName="$APP_NAME-$randomIdentifier"
@@ -44,7 +45,7 @@ if [ $(az group exists --name "$RG") = false ]; then
 
     az ad sp create-for-rbac --name "$servicePrincipalName" --role contributor \
       --scopes /subscriptions/"$subscriptionId"/resourceGroups/"$APP_NAME"/providers/Microsoft.Web/sites/"$APP_NAME" \
-      --sdk-auth | tee .credenials.json
+      | tee .credenials.json
   fi
 
 else
