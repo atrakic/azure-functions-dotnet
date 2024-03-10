@@ -31,15 +31,24 @@ if [ $(az group exists --name "$RG") = false ]; then
     --runtime dotnet-isolated --functions-version 4 \
     --storage-account "$STORAGE_NAME"
 
-  if [[ -z "${COSMOSDB_NAME}" ]]; then
+  if [[ -n "${COSMOSDB_NAME}" ]]; then
     az cosmosdb create --name "$COSMOSDB_NAME" \
       --kind MongoDB failoverPriority=0 isZoneRedundant=False \
       --resource-group "$RG" --location "$LOCATION"
   fi
 
+  if [[ -n "${CREATE_AZURE_SP}" ]]; then
+    let "randomIdentifier=$RANDOM*$RANDOM"
+    servicePrincipalName="$APP_NAME-$randomIdentifier"
+    subscriptionId=$(az account show --query id --output tsv)
+
+    az ad sp create-for-rbac --name "$servicePrincipalName" --role contributor \
+      --scopes /subscriptions/"$subscriptionId"/resourceGroups/"$APP_NAME"/providers/Microsoft.Web/sites/"$APP_NAME" \
+      --sdk-auth | tee .credenials.json
+  fi
+
 else
   echo "Resource group: $RG already exists"
 fi
-
 
 ## WEBSITE_RUN_FROM_PACKAGE
