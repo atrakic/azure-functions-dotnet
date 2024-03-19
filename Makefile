@@ -14,6 +14,7 @@ start:
 	pushd $(BASEDIR)/src/api; func start; popd
 
 deploy: infra
+	sleep 1
 	pushd $(BASEDIR)/src/api; func azure functionapp publish $(APP_NAME); popd
 
 logs:
