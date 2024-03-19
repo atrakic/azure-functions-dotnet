@@ -37,6 +37,22 @@ namespace MyFunction
             }
         }
 
+        [Function("HealthCheck")]
+        public HttpResponseData HealthCheck([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+        {
+            return _connection.State != System.Data.ConnectionState.Open
+                ? CreateResponse(req, HttpStatusCode.InternalServerError, "Database is not healthy")
+                : CreateResponse(req, HttpStatusCode.OK, "Database is healthy");
+
+            HttpResponseData CreateResponse(HttpRequestData request, HttpStatusCode statusCode, string status)
+            {
+                var response = request.CreateResponse(statusCode);
+                var healthCheckResponse = new { status };
+                response.WriteString(JsonSerializer.Serialize(healthCheckResponse));
+                return response;
+            }
+        }
+
         [Function("PostEvents")]
         public HttpResponseData PostEvents([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
         {
