@@ -78,4 +78,5 @@ if [ $(az group exists --name "$RG") = false ]; then
 
 else
   echo "Resource group: $RG already exists"
+  [[ -n "${DEBUG}" ]] && az functionapp show --name "$APP_NAME" --resource-group "$RG"
 fi
