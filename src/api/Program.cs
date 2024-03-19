@@ -4,13 +4,15 @@ using Microsoft.Extensions.Hosting;
 
 using Microsoft.Data.Sqlite;
 
+string sqlConnectionString = Environment.GetEnvironmentVariable("SQL_CONNECTION") ?? "Data Source=events.db";
+
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
-        services.AddSingleton<SqliteConnection>(new SqliteConnection("Data Source=events.db"));
+        services.AddSingleton<SqliteConnection>(new SqliteConnection(sqlConnectionString));
     })
 
     /**

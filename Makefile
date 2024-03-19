@@ -23,9 +23,11 @@ infra:
 	$(BASEDIR)/infra/deploy.sh
 
 test.local:
-	curl --request POST http://localhost:7071/HttpApi --data '{"name":"Azure Rocks"}'
-	curl -H "Accept: application/json" --request GET http://localhost:7071/HttpApi
+	curl -sL -X GET http://localhost:7071/HealthCheck
+	curl -X POST http://localhost:7071/postevents --data '{"name":"demo"}'
+	curl -H "Accept: application/json" -X GET http://localhost:7071/GetEvents
 
 clean:
 	pushd $(BASEDIR)/src/api; dotnet clean; popd
+	rm -rf $(BASEDIR)/src/api/bin/output/events.db
 	az group delete --name $(RG)
