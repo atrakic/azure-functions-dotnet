@@ -18,7 +18,7 @@ if [ $(az group exists --name "$RG") = false ]; then
     echo -n "Are you sure? Press <Enter> to continue or <Ctrl+C> to abort "
     read -r _
   fi
-  
+
   ## https://docs.microsoft.com/azure/azure-resource-manager/resource-group-create-service-principal-portal
   if [[ -n "${CREATE_AZURE_SP}" ]]; then
     let "randomIdentifier=$RANDOM*$RANDOM"
