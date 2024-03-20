@@ -6,7 +6,7 @@ APP_NAME = $(shell whoami)
 export APP_NAME
 endif
 
-.PHONY: up logs infra deploy test.local clean
+.PHONY: up logs infra deploy test.local test clean
 
 up: start
 
@@ -27,6 +27,11 @@ test.local:
 	curl -sL -X GET http://localhost:7071/HealthCheck
 	curl -X POST http://localhost:7071/postevents --data '{"name":"demo"}'
 	curl -H "Accept: application/json" -X GET http://localhost:7071/GetEvents
+
+test:
+	curl -sL -X GET https://$(APP_NAME).azurewebsites.net/HealthCheck
+	curl -X POST https://$(APP_NAME).azurewebsites.net/postevents --data '{"name":"demo"}'
+	curl -H "Accept: application/json" -X GET https://$(APP_NAME).azurewebsites.net/GetEvents
 
 clean:
 	pushd $(BASEDIR)/src/api; dotnet clean; popd
