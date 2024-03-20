@@ -15,7 +15,6 @@ skuStorage="Standard_LRS" # Allowed values: Standard_LRS, Standard_GRS, Standard
 functionsVersion="4"
 skuPlan="EP1"
 
-
 # shellcheck disable=SC2046
 if [ $(az group exists --name "$RG") = false ]; then
 
@@ -47,7 +46,6 @@ if [ $(az group exists --name "$RG") = false ]; then
     --resource-group "$RG" --location "$LOCATION"
 
   if [ -n "${PREMIUM_PLAN}" ]; then
-
     az functionapp plan create \
       --name "$premiumPlan" \
       --sku "$skuPlan" \
@@ -59,9 +57,7 @@ if [ $(az group exists --name "$RG") = false ]; then
       --functions-version "$functionsVersion" \
       --storage-account "$STORAGE_NAME" \
       --resource-group "$RG"
-
   else
-
     az functionapp create --name "$APP_NAME" \
       --runtime dotnet-isolated \
       --functions-version "$functionsVersion" \
@@ -78,5 +74,5 @@ if [ $(az group exists --name "$RG") = false ]; then
 
 else
   echo "Resource group: $RG already exists"
-  [[ -n "${DEBUG}" ]] && az functionapp show --name "$APP_NAME" --resource-group "$RG"
+  #[[ -n "${DEBUG}" ]] && az functionapp show --name "$APP_NAME" --resource-group "$RG"
 fi

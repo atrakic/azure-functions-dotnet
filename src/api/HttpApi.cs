@@ -78,18 +78,13 @@ namespace MyFunction
 
         [Function("GetEvents")]
         public async Task<HttpResponseData> GetEvents([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
-            // int page = 1, int pageSize = 10)
         {
-            _logger.LogInformation("Getting events");
+            _logger.LogInformation("Getting latest events");
 
             await _connection.OpenAsync();
             var selectCommand = _connection.CreateCommand();
 
             selectCommand.CommandText = "SELECT * FROM events ORDER BY created_at DESC LIMIT 10";
-            //selectCommand.CommandText = $"SELECT * FROM events ORDER BY created_at DESC LIMIT @pageSize OFFSET @offset";
-            //selectCommand.Parameters.AddWithValue("@pageSize", pageSize);
-            //selectCommand.Parameters.AddWithValue("@offset", (page - 1) * pageSize);
-
             var reader = await selectCommand.ExecuteReaderAsync();
 
             var events = new List<Event>();
@@ -107,6 +102,39 @@ namespace MyFunction
             response.WriteString(events.Any() ? JsonSerializer.Serialize(events) : "[]");
             return response;
         }
+
+        [Function("GetOffsetEvents")]
+        public async Task<HttpResponseData> GetOffsetEvents([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "page/{offset}")] HttpRequestData req,
+            int offset = 1)
+        {
+            const int pageSize = 10;
+
+            _logger.LogInformation("Getting paginated events {offset} {pageSize}", offset, pageSize);
+
+            await _connection.OpenAsync();
+
+            var selectCommand = _connection.CreateCommand();
+            selectCommand.CommandText = $"SELECT * FROM events ORDER BY created_at DESC LIMIT @pageSize OFFSET @offset";
+            selectCommand.Parameters.AddWithValue("@pageSize", pageSize);
+            selectCommand.Parameters.AddWithValue("@offset", (offset - 1) * pageSize);
+
+            var reader = await selectCommand.ExecuteReaderAsync();
+            var events = new List<Event>();
+            while (await reader.ReadAsync())
+            {
+                var eventId = reader.GetInt32(0);
+                var eventData = reader.GetString(1);
+                var jsonEventData = JsonDocument.Parse(eventData).RootElement;
+                var createdAt = reader.GetDateTime(2);
+                events.Add(new Event(eventId, jsonEventData, createdAt));
+            }
+            await _connection.CloseAsync();
+
+            var response = req.CreateResponse(HttpStatusCode.OK);
+            response.WriteString(events.Any() ? JsonSerializer.Serialize(events) : "[]");
+            return response;
+        }
+
 
         public record Event(int Id, JsonElement Data, DateTime CreatedAt);
     }
