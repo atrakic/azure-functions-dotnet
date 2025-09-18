@@ -1,0 +1,29 @@
+version: 2
+
+registries:
+  nuget-feed-default:
+    type: nuget-feed
+    url: https://api.nuget.org/v3/index.json
+
+updates:
+  - package-ecosystem: "dotnet-sdk"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+
+  - package-ecosystem: nuget
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    ignore:
+    - dependency-name: "*Analyzers"
+      versions:
+      - ">= 0"
+    registries:
+    - nuget-feed-default
